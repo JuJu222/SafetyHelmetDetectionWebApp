@@ -10,6 +10,10 @@ app.config['MYSQL_DB'] = 'flask'
  
 mysql = MySQL(app)
 
-@app.route('/')
-def hello():
+@app.route('/login')
+def login():
     return render_template('login.html')
+
+@app.route('/')
+def index():
+    return render_template('index.html')
