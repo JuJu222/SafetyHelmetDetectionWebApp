@@ -12,7 +12,7 @@ def extractImages(pathIn, pathOut):
         success,image = vidcap.read()
         print ('Read a new frame: ', success)
         if success:
-            cv2.imwrite( pathOut + "\\frame%d.jpg" % count, image)     # save frame as JPEG file
+            cv2.imwrite( pathOut + "/frame%d.jpg" % count, image)     # save frame as JPEG file
             count = count + 30
 
 if __name__=="__main__":

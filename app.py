@@ -1,4 +1,6 @@
-from flask import Flask, render_template, request
+import os
+
+from flask import Flask, render_template, request, url_for, redirect
 from flask_mysqldb import MySQL
 from subprocess import Popen
 
@@ -18,32 +20,50 @@ mysql = MySQL(app)
 
 @app.route('/login')
 def login():
+    cur = mysql.connection.cursor()
+    cur.execute("""SELECT * FROM users LIMIT 1""")
+    rv = cur.fetchall()
+    cur.close()
     return render_template('login.html')
 
 
 @app.route('/')
 def index():
     cur = mysql.connection.cursor()
-    cur.execute("""SELECT * FROM users LIMIT 1""")
-    rv = cur.fetchall()
+    cur.execute("""SELECT * FROM detections""")
+    detections = cur.fetchall()
     cur.close()
-    return render_template('index.html')
+
+    return render_template('index.html', detections=detections)
 
 
 @app.route('/upload', methods = ['POST'])
 def upload():
-    if request.method == 'POST':   
-        # print(request)
-        # f = request.files['file'] 
-        # f.save(f.filename)  
+    if request.method == 'POST':
+        con = mysql.connection
+        cur = con.cursor()
+        cur.execute("""INSERT INTO `detections` (`id`, `workers`, `violations`, `duration`, `created_at`, `updated_at`) VALUES (NULL, '1', '2', '3', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);""")
+        con.commit()
+        cur.close()
 
-        # extractImages(f.filename, "frames")
+        inserted_id = cur.lastrowid
+        f = request.files['file']
+        path = 'static/frames/' + str(inserted_id)
+        os.mkdir(path)
 
-        process = Popen(["python", "detect.py", '--source', "frame0.jpg", "--weights","last.pt"], shell=False)
-        process.communicate()
-        process.wait()
+        f.save('temp/' + f.filename)
 
-        print("adadada")
+        extractImages('temp/' + f.filename, path)
 
-        return "aaa"   
+        os.remove('temp/' + f.filename)
+
+        return redirect('/')
+
+        # process = Popen(["python", "detect.py", '--source', "frame0.jpg", "--weights","last.pt"], shell=False)
+        # process.communicate()
+        # process.wait()
+        #
+        # print("adadada")
+        #
+        # return "aaa"
 
