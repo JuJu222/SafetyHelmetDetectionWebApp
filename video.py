@@ -10,7 +10,6 @@ def extractImages(pathIn, pathOut):
     while success:
         vidcap.set(cv2.CAP_PROP_POS_MSEC,(count*1000))    # added this line 
         success,image = vidcap.read()
-        print ('Read a new frame: ', success)
         if success:
             cv2.imwrite( pathOut + "/frame%d.jpg" % count, image)     # save frame as JPEG file
             count = count + 30
