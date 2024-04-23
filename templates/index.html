@@ -5,11 +5,22 @@
     <div class="p-8 w-2/3 flex flex-col">
         <div>
             <h1 class="font-bold text-3xl">Sistem Deteksi Safety Helmet Otomatis</h1>
-            {% if cur_date %}
-            <h2 class="text-2xl mt-2">{{'Hasil Deteksi ' + cur_date + ' | Durasi ' + cur_duration + ' (3 pekerja, 2 pelanggaran)'}}</h2>
-            {% else %}
-            <h2 class="text-2xl mt-2">Unggah Video atau Pilih Hasil Riwayat Deteksi</h2>
-            {% endif %}
+            <h2 class="text-2xl mt-2">
+                {% if cur_date %}
+                {{'Hasil Deteksi ' + cur_date + ' | Durasi ' + cur_duration + ' '}}
+                    {% if cur_violations == 0 %}
+                    <span>
+                        {{'(' ~ cur_workers ~ ' pekerja, ' ~ cur_violations ~  ' pelanggaran)'}}
+                    </span>
+                    {% else %}
+                    <span class="text-red-600">
+                        {{'(' ~ cur_workers ~ ' pekerja, ' ~ cur_violations ~  ' pelanggaran)'}}
+                    </span>
+                    {% endif %}
+                {% else %}
+                Unggah Video atau Pilih Hasil Riwayat Deteksi
+                {% endif %}
+            </h2>
         </div>
         <img class="w-full h-full my-6 object-contain bg-gray-100" src="{{url_for('static', filename=cur_path)}}" alt="">
         <form action="/upload" method="post" enctype="multipart/form-data">
@@ -25,12 +36,16 @@
                 <h3 class="text-xl mb-2">{{ detection["date"] }}</h3>
                 {% for image in detection["images"] %}
                 <a href="{{'/?detection=' ~ detection['id'] + '&image=' + image['path']}}">
-                    <div class="flex p-4 hover:bg-gray-100 transition items-center justify-between cursor-pointer">
-                        <div class="flex items-center">
+                    <div class="flex hover:bg-gray-100 transition items-center justify-between cursor-pointer">
+                        <div class="flex items-center p-4">
                             <img class="w-1/3 object-contain bg-gray-100" src="{{url_for('static', filename='frames/' ~ detection['id'] + '/result/' + image['path'])}}" alt="">
                             <div class="w-full pl-4 pr-1">
                                 <p class="text-xl">{{ image['duration'] }}</p>
-                                <p class="text-lg">3 pekerja, 2 pelanggaran</p>
+                                {% if image['violations'] == 0 %}
+                                <p class="text-lg">{{ image['workers'] }} pekerja, {{ image['violations'] }} pelanggaran</p>
+                                {% else %}
+                                <p class="text-lg text-red-600">{{ image['workers'] }} pekerja, {{ image['violations'] }} pelanggaran</p>
+                                {% endif %}
                             </div>
                         </div>
                         <a href="{{'/delete/' ~ detection['id'] ~ '/' ~ image['path']}}">

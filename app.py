@@ -44,6 +44,8 @@ def index():
     cur_detection = request.args.get('detection')
     cur_image = request.args.get('image')
     cur_date = ''
+    cur_workers = 0
+    cur_violations = 0
     if cur_detection is not None:
         cur_path = 'frames/' + cur_detection + "/result/" + cur_image
         pattern = r'\d+'
@@ -57,6 +59,19 @@ def index():
         if hours > 0:
             duration = '{:02}:{}'.format(hours, duration)
         cur_duration = duration
+
+        labels_path = 'static/frames/' + cur_detection + '/result/labels/' + cur_image.replace(".jpg", ".txt")
+        if os.path.exists(labels_path):
+            with open(labels_path, 'r') as file:
+                cur_workers = 0
+                cur_violations = 0
+                for line in file:
+                    line = line.strip()
+                    if line[0] == '1':
+                        cur_workers = cur_workers + 1
+                    else:
+                        cur_workers = cur_workers + 1
+                        cur_violations = cur_violations + 1
     else:
         cur_path = ''
         cur_duration = ''
@@ -81,9 +96,23 @@ def index():
                 duration = '{:02}:{:02}'.format(minutes, seconds)
                 if hours > 0:
                     duration = '{:02}:{}'.format(hours, duration)
-                detection["images"].append({'path': image, 'duration': duration})
 
-    return render_template('index.html', detections=detections, cur_path=cur_path, cur_date=cur_date, cur_duration=cur_duration)
+                file_path = path + '/labels/' + image.replace(".jpg", ".txt")
+                workers = 0
+                violations = 0
+
+                if os.path.exists(file_path):
+                    with open(file_path, 'r') as file:
+                        for line in file:
+                            line = line.strip()
+                            if line[0] == '1':
+                                workers = workers + 1
+                            else:
+                                workers = workers + 1
+                                violations = violations + 1
+                detection["images"].append({'path': image, 'duration': duration, 'workers': workers, 'violations': violations})
+
+    return render_template('index.html', detections=detections, cur_path=cur_path, cur_date=cur_date, cur_duration=cur_duration, cur_workers=cur_workers, cur_violations=cur_violations)
 
 
 @app.route('/upload', methods = ['POST'])
@@ -110,13 +139,7 @@ def upload():
         process.communicate()
         process.wait()
 
-        return redirect('/')
-
-
-        #
-        # print("adadada")
-        #
-        # return "aaa"
+        return redirect('/?detection=' + str(inserted_id) + '&image=frame0.jpg')
 
 @app.route('/delete/<string:detection_id>/<string:image>', methods = ['GET'])
 def delete(detection_id, image):
