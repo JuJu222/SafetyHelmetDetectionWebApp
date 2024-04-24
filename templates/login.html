@@ -1,40 +1,18 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="h-full flex justify-center items-center">
-    <section class="max-w-4xl p-6 bg-white rounded-md shadow-md">
-        <h2 class="text-lg font-semibold text-gray-700 capitalize">Account settings</h2>
-    
-        <form>
-            <div class="grid grid-cols-1 gap-6 mt-4 sm:grid-cols-2">
-                <div>
-                    <label class="text-gray-700" for="username">Username</label>
-                    <input id="username" type="text"
-                        class="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-200 rounded-md focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40 focus:outline-none focus:ring">
-                </div>
-    
-                <div>
-                    <label class="text-gray-700" for="emailAddress">Email Address</label>
-                    <input id="emailAddress" type="email"
-                        class="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-200 rounded-md focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40 focus:outline-none focus:ring">
-                </div>
-    
-                <div>
-                    <label class="text-gray-700" for="password">Password</label>
-                    <input id="password" type="password"
-                        class="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-200 rounded-md focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40 focus:outline-none focus:ring">
-                </div>
-    
-                <div>
-                    <label class="text-gray-700" for="passwordConfirmation">Password Confirmation</label>
-                    <input id="passwordConfirmation" type="password"
-                        class="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-200 rounded-md focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40 focus:outline-none focus:ring">
-                </div>
+<div class="h-full flex flex-col justify-center items-center gap-12">
+    <h2 class="text-3xl font-bold text-gray-700 text-center">Sistem Deteksi Safety Helmet Otomatis</h2>
+
+    <section class="max-w-xl p-6 bg-white rounded-md border border-black w-full">
+        <form action="/auth" method="post">
+            <div>
+                <label class="text-gray-700" for="passwordConfirmation">Kata Sandi</label>
+                <input id="passwordConfirmation" type="password" name="password"
+                       class="block w-full px-4 py-2 mt-2 text-gray-700 bg-gray-200 border border-gray-200 rounded-md focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40 focus:outline-none focus:ring">
             </div>
-    
             <div class="flex justify-end mt-6">
-                <button
-                    class="px-8 py-2.5 leading-5 text-white transition-colors duration-300 transform bg-gray-700 rounded-md hover:bg-gray-600 focus:outline-none focus:bg-gray-600">Save</button>
+                <button type="submit" class="px-8 py-3 font-bold text-white transition-colors duration-300 transform bg-black rounded-md hover:bg-gray-800 w-full">Masuk</button>
             </div>
         </form>
     </section>

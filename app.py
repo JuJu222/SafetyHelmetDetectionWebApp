@@ -1,7 +1,7 @@
 import re
 from datetime import datetime
 import os
-from flask import Flask, render_template, request, url_for, redirect
+from flask import Flask, render_template, request, url_for, redirect, session
 from flask_mysqldb import MySQL
 from subprocess import Popen
 from operator import itemgetter
@@ -10,6 +10,7 @@ from video import extractImages
 
 app = Flask(__name__, template_folder='templates')
 app.static_folder = 'static'
+app.secret_key = "awTNVMWwaq"
 
 app.config['MYSQL_HOST'] = '127.0.0.1'
 app.config['MYSQL_USER'] = 'root'
@@ -28,15 +29,35 @@ month_names_id = [
 
 @app.route('/login')
 def login():
+    if 'logged_in' in session:
+        return redirect('/')
+
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.pop('logged_in', None)
+
+    return redirect('/login')
+
+@app.route('/auth', methods = ['POST'])
+def auth():
     cur = mysql.connection.cursor()
     cur.execute("""SELECT * FROM users LIMIT 1""")
     rv = cur.fetchall()
     cur.close()
-    return render_template('login.html')
 
+    if rv[0]['password'] == request.form["password"]:
+        session['logged_in'] = 'true'
+        return redirect('/')
+    else:
+        return redirect('/login')
 
 @app.route('/')
 def index():
+    if 'logged_in' not in session:
+        return redirect('/login')
+
     cur = mysql.connection.cursor()
     cur.execute("""SELECT * FROM detections""")
     detections = cur.fetchall()
