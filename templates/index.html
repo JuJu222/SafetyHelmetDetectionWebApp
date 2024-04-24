@@ -44,7 +44,11 @@
                 <h3 class="text-xl mb-2">{{ detection["date"] }}</h3>
                 {% for image in detection["images"] %}
                 <a href="{{'/?detection=' ~ detection['id'] + '&image=' + image['path']}}">
+                    {% if request.args.get('detection') == detection['id']|string and request.args.get('image') == image['path'] %}
+                    <div class="flex hover:bg-gray-100 bg-gray-100 transition items-center justify-between cursor-pointer">
+                    {% else %}
                     <div class="flex hover:bg-gray-100 transition items-center justify-between cursor-pointer">
+                    {% endif %}
                         <div class="flex items-center p-4">
                             <img class="w-1/3 object-contain bg-gray-100" src="{{url_for('static', filename='frames/' ~ detection['id'] + '/result/' + image['path'])}}" alt="">
                             <div class="w-full pl-4 pr-1">
