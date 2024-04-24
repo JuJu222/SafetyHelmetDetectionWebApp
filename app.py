@@ -140,9 +140,9 @@ def upload():
         process.communicate()
         process.wait()
 
-        # process = Popen(["python", "detect.py", '--img-size', '1664', '--source', 'static/frames/' + str(inserted_id), "--weights","last.pt", "--project", "static/frames", "--name", str(inserted_id) + "/result", "--no-trace", "--save-txt"], shell=False)
-        # process.communicate()
-        # process.wait()
+        process = Popen(["python", "detect.py", '--img-size', '1664', '--source', 'static/frames/' + str(inserted_id), "--weights","last.pt", "--project", "static/frames", "--name", str(inserted_id) + "/result", "--no-trace", "--save-txt"], shell=False)
+        process.communicate()
+        process.wait()
 
         return redirect('/?detection=' + str(inserted_id) + '&image=frame0.jpg')
 

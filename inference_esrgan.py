@@ -23,7 +23,6 @@ def inference():
     model.eval()
     model = model.to(device)
 
-    os.makedirs('results/ESRGAN', exist_ok=True)
     for idx, path in enumerate(sorted(glob.glob(os.path.join(folder, '*')))):
         imgname = os.path.splitext(os.path.basename(path))[0]
         print(idx, imgname)
@@ -39,7 +38,7 @@ def inference():
         output = output.data.squeeze().float().cpu().clamp_(0, 1).numpy()
         output = np.transpose(output[[2, 1, 0], :, :], (1, 2, 0))
         output = (output * 255.0).round().astype(np.uint8)
-        cv2.imwrite(f'{opt.output}/{imgname}_ESRGAN.png', output)
+        cv2.imwrite(f'{opt.output}/{imgname}.jpg', output)
 
 
 if __name__ == '__main__':
