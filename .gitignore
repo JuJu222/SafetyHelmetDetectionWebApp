@@ -2,3 +2,4 @@ static/frames
 __pycache__
 last.pt
 traced_model.pt
+net_g_latest.pth

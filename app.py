@@ -4,6 +4,7 @@ import os
 from flask import Flask, render_template, request, url_for, redirect
 from flask_mysqldb import MySQL
 from subprocess import Popen
+from operator import itemgetter
 
 from video import extractImages
 
@@ -112,6 +113,8 @@ def index():
                                 violations = violations + 1
                 detection["images"].append({'path': image, 'duration': duration, 'workers': workers, 'violations': violations})
 
+        detection["images"] = sorted(detection["images"], key=itemgetter('duration'))
+
     return render_template('index.html', detections=detections, cur_path=cur_path, cur_date=cur_date, cur_duration=cur_duration, cur_workers=cur_workers, cur_violations=cur_violations)
 
 
@@ -130,14 +133,16 @@ def upload():
         os.mkdir(path)
 
         f.save('temp/' + f.filename)
-
         extractImages('temp/' + f.filename, path)
-
         os.remove('temp/' + f.filename)
 
-        process = Popen(["python", "detect.py", '--source', 'static/frames/' + str(inserted_id), "--weights","last.pt", "--project", "static/frames", "--name", str(inserted_id) + "/result", "--no-trace", "--save-txt"], shell=False)
+        process = Popen(["python", "inference_esrgan.py", '--input', path, '--output', path], shell=False)
         process.communicate()
         process.wait()
+
+        # process = Popen(["python", "detect.py", '--img-size', '1664', '--source', 'static/frames/' + str(inserted_id), "--weights","last.pt", "--project", "static/frames", "--name", str(inserted_id) + "/result", "--no-trace", "--save-txt"], shell=False)
+        # process.communicate()
+        # process.wait()
 
         return redirect('/?detection=' + str(inserted_id) + '&image=frame0.jpg')
 
