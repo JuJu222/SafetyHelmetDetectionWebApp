@@ -59,7 +59,7 @@ def index():
         return redirect('/login')
 
     cur = mysql.connection.cursor()
-    cur.execute("""SELECT * FROM detections""")
+    cur.execute("""SELECT * FROM detections ORDER BY created_at DESC""")
     detections = cur.fetchall()
     cur.close()
 
