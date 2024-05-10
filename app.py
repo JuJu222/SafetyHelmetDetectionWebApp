@@ -101,6 +101,9 @@ def index():
     for detection in detections:
         path = 'static/frames/' + str(detection["id"]) + "/result"
         detection["images"] = []
+        if not os.path.isdir(path):
+            detection["invalid"] = True
+            continue
         images = os.listdir(path)
         detection["date"] = detection["created_at"].strftime('%d %B %Y - %H:%M').replace(detection["created_at"].strftime('%B'), month_names_id[detection["created_at"].month - 1])
         if str(detection["id"]) == cur_detection:
@@ -183,3 +186,54 @@ def delete(detection_id, image):
             cur.close()
 
         return redirect('/')
+
+@app.route('/upload/1', methods = ['GET'])
+def upload1():
+    if request.method == 'GET':
+        con = mysql.connection
+        cur = con.cursor()
+        cur.execute("""INSERT INTO `detections` (`id`, `workers`, `violations`, `duration`, `created_at`, `updated_at`) VALUES (NULL, '1', '2', '3', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);""")
+        con.commit()
+        cur.close()
+
+        inserted_id = cur.lastrowid
+        path = 'static/frames/' + str(inserted_id)
+        os.mkdir(path)
+
+        extractImages("Adesktop 2024.05.05 - 15.24.23.126 - Trim.mp4", path)
+
+        process = Popen(["python", "inference_esrgan.py", '--input', path, '--output', path], shell=False)
+        process.communicate()
+        process.wait()
+
+        process = Popen(["python", "detect.py", '--img-size', '1664', '--source', 'static/frames/' + str(inserted_id), "--weights","last.pt", "--project", "static/frames", "--name", str(inserted_id) + "/result", "--no-trace", "--save-txt"], shell=False)
+        process.communicate()
+        process.wait()
+
+        return redirect('/?detection=' + str(inserted_id) + '&image=frame0.jpg')
+
+@app.route('/upload/2', methods = ['GET'])
+def upload2():
+    if request.method == 'GET':
+        con = mysql.connection
+        cur = con.cursor()
+        cur.execute("""INSERT INTO `detections` (`id`, `workers`, `violations`, `duration`, `created_at`, `updated_at`) VALUES (NULL, '1', '2', '3', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);""")
+        con.commit()
+        cur.close()
+
+        inserted_id = cur.lastrowid
+        path = 'static/frames/' + str(inserted_id)
+        os.mkdir(path)
+
+        extractImages("Adesktop 2024.04.03 - 10.53.19.10 - Trim.mp4", path)
+
+        process = Popen(["python", "inference_esrgan.py", '--input', path, '--output', path], shell=False)
+        process.communicate()
+        process.wait()
+
+        process = Popen(["python", "detect.py", '--img-size', '1664', '--source', 'static/frames/' + str(inserted_id), "--weights","last.pt", "--project", "static/frames", "--name", str(inserted_id) + "/result", "--no-trace", "--save-txt"], shell=False)
+        process.communicate()
+        process.wait()
+
+        return redirect('/?detection=' + str(inserted_id) + '&image=frame0.jpg')
+

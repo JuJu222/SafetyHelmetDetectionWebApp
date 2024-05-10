@@ -7,7 +7,7 @@
             <div class="flex justify-between items-center">
                 <h1 class="font-bold text-3xl">Sistem Deteksi Safety Helmet Otomatis</h1>
                 <a href="/logout">
-                    <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-right" viewBox="0 0 16 16">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-right w-6 h-6" viewBox="0 0 16 16">
                         <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0z"/>
                         <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/>
                     </svg>
@@ -31,44 +31,52 @@
             </h2>
         </div>
         <img class="w-full h-full my-6 object-contain bg-gray-100" src="{{url_for('static', filename=cur_path)}}" alt="">
-        <form action="/upload" method="post" enctype="multipart/form-data">
-            <input type="file" id="file" name="file" style="display: none;" onchange="form.submit()" />
-            <button type="button" onclick="document.getElementById('file').click();" class="px-8 py-4 text-xl font-bold text-white transition-colors duration-300 transform bg-black rounded-md hover:bg-gray-800 w-full">Unggah Video</button>
-        </form>
+        <div class="grid gap-2">
+            <form action="/upload" method="post" enctype="multipart/form-data">
+                <input type="file" id="file" name="file" style="display: none;" onchange="form.submit()" />
+                <button type="button" onclick="document.getElementById('file').click();" class="px-8 py-4 text-xl font-bold text-white transition-colors duration-300 transform bg-black rounded-md hover:bg-gray-800 w-full">Unggah Video</button>
+            </form>
+            <div class="grid grid-cols-2 gap-2">
+                <a href="/upload/1" class="px-8 py-2 text-lg text-white transition-colors duration-300 transform bg-gray-700 rounded-md hover:bg-gray-600 w-full text-center">Deteksi Video 1 (Preuploaded)</a>
+                <a href="/upload/2" class="px-8 py-2 text-lg text-white transition-colors duration-300 transform bg-gray-700 rounded-md hover:bg-gray-600 w-full text-center">Deteksi Video 2 (Preuploaded)</a>
+            </div>
+        </div>
     </div>
     <div class="p-8 w-1/3 h-screen flex flex-col">
         <h1 class="font-bold text-3xl mb-6">Riwayat Deteksi</h1>
         <div class="overflow-y-scroll min-h-0 flex-1">
             {% for detection in detections %}
+            {% if not detection["invalid"] %}
             <div>
                 <h3 class="text-xl mb-2">{{ detection["date"] }}</h3>
                 {% for image in detection["images"] %}
                 <a href="{{'/?detection=' ~ detection['id'] + '&image=' + image['path']}}">
                     {% if request.args.get('detection') == detection['id']|string and request.args.get('image') == image['path'] %}
                     <div class="flex hover:bg-gray-100 bg-gray-100 transition items-center justify-between cursor-pointer">
-                    {% else %}
-                    <div class="flex hover:bg-gray-100 transition items-center justify-between cursor-pointer">
-                    {% endif %}
-                        <div class="flex items-center p-4">
-                            <img class="w-1/3 object-contain bg-gray-100" src="{{url_for('static', filename='frames/' ~ detection['id'] + '/result/' + image['path'])}}" alt="">
-                            <div class="w-full pl-4 pr-1">
-                                <p class="text-xl">{{ image['duration'] }}</p>
-                                {% if image['violations'] == 0 %}
-                                <p class="text-lg">{{ image['workers'] }} pekerja, {{ image['violations'] }} pelanggaran</p>
-                                {% else %}
-                                <p class="text-lg text-red-600">{{ image['workers'] }} pekerja, {{ image['violations'] }} pelanggaran</p>
-                                {% endif %}
+                        {% else %}
+                        <div class="flex hover:bg-gray-100 transition items-center justify-between cursor-pointer">
+                            {% endif %}
+                            <div class="flex items-center p-4">
+                                <img class="w-1/3 object-contain bg-gray-100" src="{{url_for('static', filename='frames/' ~ detection['id'] + '/result/' + image['path'])}}" alt="">
+                                <div class="w-full pl-4 pr-1">
+                                    <p class="text-xl">{{ image['duration'] }}</p>
+                                    {% if image['violations'] == 0 %}
+                                    <p class="text-lg">{{ image['workers'] }} pekerja, {{ image['violations'] }} pelanggaran</p>
+                                    {% else %}
+                                    <p class="text-lg text-red-600">{{ image['workers'] }} pekerja, {{ image['violations'] }} pelanggaran</p>
+                                    {% endif %}
+                                </div>
                             </div>
+                            <a href="{{'/delete/' ~ detection['id'] ~ '/' ~ image['path']}}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="w-6 h-6 bi bi-trash-fill" viewBox="0 0 16 16">
+                                    <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0"/>
+                                </svg>
+                            </a>
                         </div>
-                        <a href="{{'/delete/' ~ detection['id'] ~ '/' ~ image['path']}}">
-                            <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
-                                <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0"/>
-                            </svg>
-                        </a>
-                    </div>
                 </a>
                 {% endfor %}
-            </>
+            </div>
+            {% endif %}
             {% endfor %}
         </div>
     </div>
